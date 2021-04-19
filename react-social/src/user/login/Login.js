@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './Login.css';
-import { GOOGLE_AUTH_URL, FACEBOOK_AUTH_URL, GITHUB_AUTH_URL, ACCESS_TOKEN } from '../../constants';
+import { GOOGLE_AUTH_URL, FACEBOOK_AUTH_URL, GITHUB_AUTH_URL, ASANA_AUTH_URL, ACCESS_TOKEN } from '../../constants';
 import { login } from '../../util/APIUtils';
 import { Link, Redirect } from 'react-router-dom'
 import fbLogo from '../../img/fb-logo.png';
@@ -60,6 +60,8 @@ class SocialLogin extends Component {
                     <img src={fbLogo} alt="Facebook" /> Log in with Facebook</a>
                 <a className="btn btn-block social-btn github" href={GITHUB_AUTH_URL}>
                     <img src={githubLogo} alt="Github" /> Log in with Github</a>
+                <a className="btn btn-block social-btn github" href={ASANA_AUTH_URL}>
+                    <img src={githubLogo} alt="Github" /> Log in with Asana</a>
             </div>
         );
     }

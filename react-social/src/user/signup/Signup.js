@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './Signup.css';
 import { Link, Redirect } from 'react-router-dom'
-import { GOOGLE_AUTH_URL, FACEBOOK_AUTH_URL, GITHUB_AUTH_URL } from '../../constants';
+import { GOOGLE_AUTH_URL, FACEBOOK_AUTH_URL, GITHUB_AUTH_URL, ASANA_AUTH_URL } from '../../constants';
 import { signup } from '../../util/APIUtils';
 import fbLogo from '../../img/fb-logo.png';
 import googleLogo from '../../img/google-logo.png';
@@ -45,6 +45,8 @@ class SocialSignup extends Component {
                     <img src={fbLogo} alt="Facebook" /> Sign up with Facebook</a>
                 <a className="btn btn-block social-btn github" href={GITHUB_AUTH_URL}>
                     <img src={githubLogo} alt="Github" /> Sign up with Github</a>
+                <a className="btn btn-block social-btn github" href={ASANA_AUTH_URL}>
+                    <img src={githubLogo} alt="Asana" /> Sign up with Asana</a>
             </div>
         );
     }

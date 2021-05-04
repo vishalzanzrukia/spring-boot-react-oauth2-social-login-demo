@@ -10,13 +10,14 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 
 @EnableConfigurationProperties(AppProperties.class)
 @SpringBootApplication(exclude = {
-		DataSourceAutoConfiguration.class,
-		DataSourceTransactionManagerAutoConfiguration.class,
-		HibernateJpaAutoConfiguration.class
+        DataSourceAutoConfiguration.class,
+        DataSourceTransactionManagerAutoConfiguration.class,
+        HibernateJpaAutoConfiguration.class
 })
 public class SpringSocialApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(SpringSocialApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(SpringSocialApplication.class, args);
+    }
+
 }

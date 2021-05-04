@@ -6,6 +6,7 @@ import { signup } from '../../util/APIUtils';
 import fbLogo from '../../img/fb-logo.png';
 import googleLogo from '../../img/google-logo.png';
 import githubLogo from '../../img/github-logo.png';
+import asanaLogo from '../../img/asana-logo.png';
 import Alert from 'react-s-alert';
 
 class Signup extends Component {
@@ -34,6 +35,10 @@ class Signup extends Component {
     }
 }
 
+/*<a className="btn btn-block social-btn facebook" href={FACEBOOK_AUTH_URL}>
+                    <img src={fbLogo} alt="Facebook" /> Sign up with Facebook</a>
+                <a className="btn btn-block social-btn github" href={GITHUB_AUTH_URL}>
+                    <img src={githubLogo} alt="Github" /> Sign up with Github</a>*/
 
 class SocialSignup extends Component {
     render() {
@@ -41,12 +46,9 @@ class SocialSignup extends Component {
             <div className="social-signup">
                 <a className="btn btn-block social-btn google" href={GOOGLE_AUTH_URL}>
                     <img src={googleLogo} alt="Google" /> Sign up with Google</a>
-                <a className="btn btn-block social-btn facebook" href={FACEBOOK_AUTH_URL}>
-                    <img src={fbLogo} alt="Facebook" /> Sign up with Facebook</a>
-                <a className="btn btn-block social-btn github" href={GITHUB_AUTH_URL}>
-                    <img src={githubLogo} alt="Github" /> Sign up with Github</a>
+
                 <a className="btn btn-block social-btn github" href={ASANA_AUTH_URL}>
-                    <img src={githubLogo} alt="Asana" /> Sign up with Asana</a>
+                    <img src={asanaLogo} alt="Asana" /> Sign up with Asana</a>
             </div>
         );
     }

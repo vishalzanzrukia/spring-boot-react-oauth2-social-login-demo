@@ -1,3 +1,13 @@
+server:
+  ssl:
+    key-store: classpath:keystore/{generate_your_p12 file and put here}
+    key-store-password: xxxxxx(change it)
+    key-store-type: PKCS12
+    key-alias: localtom
+    key-password: xxxxxx(change it)
+    enabled: true
+  port: 8443
+
 spring:
 #    datasource:
 #        url: jdbc:mysql://localhost:3306/spring_social?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false
@@ -41,13 +51,14 @@ spring:
                 - read:user
             asana:
               provider: asana
-              clientId: 1200190056325438
+              clientId: xxxxx (replace with your client id)
               client-name: Asana
               client-alias: asana
-              clientSecret: a6ca7fbbc0a74296a808de81f52d2e3a
-#              redirectUri: "{baseUrl}/oauth2/callback/{registrationId}"
-              redirectUri: https://app.digitalprojectplans.com
+              registrationId: asana
+              clientSecret: xxxxxxx (replace with your client secret)
+              redirectUri: "{baseUrl}/oauth2/callback/{registrationId}"
               authorizationGrantType: authorization_code
+              userNameAttribute: email
               scope:
                 - default
           provider:
@@ -59,6 +70,7 @@ spring:
               authorizationUri: https://app.asana.com/-/oauth_authorize
               tokenUri: https://app.asana.com/-/oauth_token
               userInfoUri: https://app.asana.com/api/1.0/users/me
+              userNameAttribute: email
 
 app:
   auth:

@@ -23,3 +23,6 @@
 /dist/
 /nbdist/
 /.nb-gradle/
+
+#custom
+src/main/resources/keystore/

@@ -1,6 +1,9 @@
 package com.example.springsocial.config;
 
-import com.example.springsocial.security.*;
+import com.example.springsocial.converter.CustomOAuth2AccessTokenResponseHttpMessageConverter;
+import com.example.springsocial.security.CustomUserDetailsService;
+import com.example.springsocial.security.RestAuthenticationEntryPoint;
+import com.example.springsocial.security.TokenAuthenticationFilter;
 import com.example.springsocial.security.oauth2.CustomOAuth2UserService;
 import com.example.springsocial.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.example.springsocial.security.oauth2.OAuth2AuthenticationFailureHandler;
@@ -8,6 +11,7 @@ import com.example.springsocial.security.oauth2.OAuth2AuthenticationSuccessHandl
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -18,9 +22,14 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -44,7 +53,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
 
     @Autowired
-    private HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
+    private HttpCookieOAuth2AuthorizationRequestRepository cookieAuthorizationRequestRepository;
+
+    @Autowired
+    private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> customOAuth2TokenResponseClient;
 
     @Bean
     public TokenAuthenticationFilter tokenAuthenticationFilter() {
@@ -80,25 +92,46 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+    @Bean
+    public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> customOAuth2TokenResponseClient() {
+        DefaultAuthorizationCodeTokenResponseClient accessTokenResponseClient =
+                new DefaultAuthorizationCodeTokenResponseClient();
+
+        //custom token response converter
+        CustomOAuth2AccessTokenResponseHttpMessageConverter tokenResponseHttpMessageConverter = new CustomOAuth2AccessTokenResponseHttpMessageConverter();
+
+        RestTemplate restTemplate = new RestTemplate(Arrays.asList(
+                new FormHttpMessageConverter(), tokenResponseHttpMessageConverter));
+
+        restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
+
+        accessTokenResponseClient.setRestOperations(restTemplate);
+        return accessTokenResponseClient;
+    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .requiresChannel()
+                .anyRequest()
+                .requiresSecure()
+                .and()
                 .cors()
-                    .and()
+                .and()
                 .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                    .and()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
                 .csrf()
-                    .disable()
+                .disable()
                 .formLogin()
-                    .disable()
+                .disable()
                 .httpBasic()
-                    .disable()
+                .disable()
                 .exceptionHandling()
-                    .authenticationEntryPoint(new RestAuthenticationEntryPoint())
-                    .and()
+                .authenticationEntryPoint(new RestAuthenticationEntryPoint())
+                .and()
                 .authorizeRequests()
-                    .antMatchers("/",
+                .antMatchers("/",
                         "/error",
                         "/favicon.ico",
                         "/**/*.png",
@@ -108,25 +141,27 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/**/*.html",
                         "/**/*.css",
                         "/**/*.js")
-                        .permitAll()
-                    .antMatchers("/auth/**", "/oauth2/**")
-                        .permitAll()
-                    .anyRequest()
-                        .authenticated()
-                    .and()
+                .permitAll()
+                .antMatchers("/auth/**", "/oauth2/**")
+                .permitAll()
+                .anyRequest()
+                .authenticated()
+                .and()
                 .oauth2Login()
-                    .authorizationEndpoint()
-                        .baseUri("/oauth2/authorize")
-                        .authorizationRequestRepository(cookieAuthorizationRequestRepository())
-                        .and()
-                    .redirectionEndpoint()
-                        .baseUri("/oauth2/callback/*")
-                        .and()
-                    .userInfoEndpoint()
-                        .userService(customOAuth2UserService)
-                        .and()
-                    .successHandler(oAuth2AuthenticationSuccessHandler)
-                    .failureHandler(oAuth2AuthenticationFailureHandler);
+                .tokenEndpoint().accessTokenResponseClient(customOAuth2TokenResponseClient)
+                .and()
+                .authorizationEndpoint()
+                .baseUri("/oauth2/authorize")
+                .authorizationRequestRepository(cookieAuthorizationRequestRepository)
+                .and()
+                .redirectionEndpoint()
+                .baseUri("/oauth2/callback/*")
+                .and()
+                .userInfoEndpoint()
+                .userService(customOAuth2UserService)
+                .and()
+                .successHandler(oAuth2AuthenticationSuccessHandler)
+                .failureHandler(oAuth2AuthenticationFailureHandler);
 
         // Add our custom Token based authentication filter
         http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
